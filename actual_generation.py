@@ -1,10 +1,11 @@
 import requests
 import urllib
 import json
+import config
 
-SECRET_KEY = "NmZjZTA0NjYtNjUzYS00OTdlLTlkNDgtZmU0YTcwZTA2OTU1OjUwZmJmMzVmLTA0NDUtNDU2Mi1hNmQ5LWE2NmE1ZTgyNzdhNw=="
 
 class ActualGeneration():
+    
 
     def __init__(self):
         self.access_token, self.token_type = self.get_token()
@@ -25,7 +26,7 @@ class ActualGeneration():
 
         response = requests.post('https://digital.iservices.rte-france.com/token/oauth/', 
                                  headers={"content-type": f"application/x-www-form-urlencoded", 
-                                          "Authorization": f"Basic {SECRET_KEY}"}, 
+                                          "Authorization": f"Basic {config.SECRET_KEY}"}, 
                                 )
         if response.ok:
             access_token = response.json()['access_token']
