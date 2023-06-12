@@ -11,8 +11,9 @@ class ActualGeneration():
 
     def get_per_unit(self, start_date=None, end_date=None) -> dict:
         response = requests.get('https://digital.iservices.rte-france.com/open_api/actual_generation/v1/actual_generations_per_unit',
-                                verify=False, 
-                                headers={'Authorization': f'{self.access_token} {self.token_type} '})
+                                headers={'Authorization': f'{self.access_token} {self.token_type} '}
+                               )
+
         if response.status_code == 200: #and 'application/json' in response.headers.get('Content-Type',''):
             return response.json()
         else:
@@ -25,7 +26,7 @@ class ActualGeneration():
         response = requests.post('https://digital.iservices.rte-france.com/token/oauth/', 
                                  headers={"content-type": f"application/x-www-form-urlencoded", 
                                           "Authorization": f"Basic {SECRET_KEY}"}, 
-                                 verify=False)
+                                )
         if response.ok:
             access_token = response.json()['access_token']
             token_type = response.json()['token_type']
