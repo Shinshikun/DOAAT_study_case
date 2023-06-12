@@ -10,19 +10,31 @@ import config
 
 
 class ActualGeneration():
-    
+    """
+    Class permettant de récupérer les informations
+    de l'API RTE Actual Generation
+    """
 
     def __init__(self):
         self.access_token, self.token_type = self.get_token()
 
     def get_per_unit(self, start_date: Optional[datetime.datetime] = None, end_date: Optional[datetime.datetime] = None, sandbox=True) -> dict:
+        """
+        Récupère les données de productions par unités.
 
+        :param start_date: Date de départ des datas
+        :param end_date: Date de fin des datas
+        :param sandbox: S'il faut utiliser l'URL sandbox pour les tests
+        """
+
+        # La Sandbox permet de faire des tests avec moins de données
         if sandbox:
             url = "https://digital.iservices.rte-france.com/open_api/actual_generation/v1/sandbox/actual_generations_per_unit"
         else:
             url = "https://digital.iservices.rte-france.com/open_api/actual_generation/v1/actual_generations_per_unit"
 
 
+        # Si la date de départ et de fin ne sont pas données, on get l'URL sans paramètre
         if start_date is None or end_date is None:
             response = requests.get(url,
                                     headers={'Authorization': f'{self.access_token} {self.token_type} '})
@@ -34,21 +46,33 @@ class ActualGeneration():
                                     headers={'Authorization': f'{self.access_token} {self.token_type} '},
                                     params=param
                                 )
-
+                                
+        # Si on obtient bien un résultat json
         if response.status_code == 200 and 'application/json' in response.headers.get('Content-Type',''):
             return response.json()
         else:
             return response.status_code
 
     
-    def get_mean_hour_by_hour(self, start_date: Optional[datetime.datetime] = None, end_date: Optional[datetime.datetime] = None, sandbox=True):
+    def get_mean_hour_by_hour(self, start_date: Optional[datetime.datetime] = None, end_date: Optional[datetime.datetime] = None, sandbox=True) -> pd.Series:
+        """
+        Récupère la moyenne de production de toutes les entités heure par heure
+
+        :param start_date: Date de départ des datas
+        :param end_date: Date de fin des datas
+        :param sandbox: S'il faut utiliser l'URL sandbox pour les tests
+        """
+
         data = self.get_per_unit(start_date, end_date, sandbox=sandbox)
         value_per_hour = {}
+
+        # Parfois l'appel à l'API peut résulter en erreur
         if type(data) != dict:
             print("Erreur lors de l'appel à l'API")
             return
         data = data.get("actual_generations_per_unit")
 
+        # On va traiter la donnée afin de récupérer le total de production sur un temps donné
         for entry in data:
             for values in entry["values"]:
                 date = dateutil.parser.parse(values["start_date"])
@@ -57,11 +81,13 @@ class ActualGeneration():
                 else:
                     value_per_hour[date] = values["value"]
 
-        d = pd.Series(value_per_hour).resample("H").mean()
-        print(d)
+        return pd.Series(value_per_hour).resample("H").mean()
 
 
     def get_token(self):
+        """
+        Permet de récupérer les tokens d'authentification
+        """
 
         response = requests.post(config.URL_AUTH, 
                                  headers={"content-type": f"application/x-www-form-urlencoded", 
