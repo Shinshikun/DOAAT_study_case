@@ -25,6 +25,9 @@ def home():
 
 @app.route("/graph")
 def show_prod_per_unit():
+    if session.get(start_date) is None or session.get(end_date) is None:
+        return redirect(url_for("home"))
+        
     start_date = datetime.datetime.strptime(session.get("start_date") + " 00:00:00", "%Y-%m-%d %H:%M:%S")
     end_date = datetime.datetime.strptime(session.get("end_date") + " 00:00:00", "%Y-%m-%d %H:%M:%S")
 
@@ -33,10 +36,16 @@ def show_prod_per_unit():
     if data is None:
         return redirect(url_for("home"))
 
-    data = pd.DataFrame(data, columns=["Production"])
+    data = pd.DataFrame(data)
     print(data.head())
 
-    figure = px.bar(data, y="Production")
+    figure = px.bar(data)
+    figure.update_layout(
+        title="Production",
+        xaxis_title="Heures de la journée",
+        yaxis_title="Production par heure",
+        legend_title="Date"
+    )
 
     graph = json.dumps(figure, cls=plotly.utils.PlotlyJSONEncoder)
 
