@@ -18,7 +18,7 @@ class ActualGeneration():
     def __init__(self):
         self.access_token, self.token_type = self.get_token()
 
-    def get_per_unit(self, start_date: Optional[datetime.datetime] = None, end_date: Optional[datetime.datetime] = None, sandbox=True) -> dict:
+    def get_per_unit(self, start_date: Optional[datetime.datetime] = None, end_date: Optional[datetime.datetime] = None, sandbox=False) -> dict:
         """
         Récupère les données de productions par unités.
 
@@ -46,7 +46,7 @@ class ActualGeneration():
                                     headers={'Authorization': f'{self.access_token} {self.token_type} '},
                                     params=param
                                 )
-                                
+
         # Si on obtient bien un résultat json
         if response.status_code == 200 and 'application/json' in response.headers.get('Content-Type',''):
             return response.json()
@@ -54,7 +54,7 @@ class ActualGeneration():
             return response.status_code
 
     
-    def get_mean_hour_by_hour(self, start_date: Optional[datetime.datetime] = None, end_date: Optional[datetime.datetime] = None, sandbox=True) -> pd.Series:
+    def get_mean_hour_by_hour(self, start_date: Optional[datetime.datetime] = None, end_date: Optional[datetime.datetime] = None, sandbox=False) -> pd.Series:
         """
         Récupère la moyenne de production de toutes les entités heure par heure
 
