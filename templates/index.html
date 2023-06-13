@@ -1,29 +1,21 @@
 <!doctype html>
-<html>
-<style>
-* {
-	-webkit-box-sizing: border-box;
-	box-sizing: border-box;
-}
-body {
-	background-color: #272b34;
-	font-family: 'Khula', sans-serif;
-	font-weight: 300;
-	color: white;
-	line-height: 1em;
-	margin: 0;
-padding: 2em 1em;
-}
 
-</style>
-	<body>
-		<div id='chart' class='chart'”></div>
-	</body>
+<html lang="fr">
+	<head>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}"/>
+	</head>
+    <form method="post" class="buttons">
+        <div>
+            <input type="date" id="start" name="start_date"
+                value="2022-12-01">
 
-<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
-<script type='text/javascript'>
-	var graphs = {{graphJSON | safe}};
-	Plotly.plot('chart',graphs,{});
-</script>
+            <input type="date" id="end" name="end_date"
+                value="2022-12-10">
+        </div>
+        <div>
+            <button type="submit" name="create_graph">Afficher la production</button>
+        </div>
+    </form>
+	
 </html>
-

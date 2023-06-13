@@ -1,0 +1,19 @@
+<!doctype html>
+
+<html lang="fr">
+	<head>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}"/>
+	</head>
+	<body>
+		<div id='chart' class='chart'”></div>
+	</body>
+
+	<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+	<script type='text/javascript'>
+		var graphs = {{graph | safe}};
+		Plotly.plot('chart',graphs,{});
+	</script>
+	
+</html>
+

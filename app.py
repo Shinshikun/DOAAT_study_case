@@ -1,26 +1,40 @@
-from flask import Flask, render_template
 import datetime
 import pandas as pd
 import json
 import plotly
 import plotly.express as px 
+from flask import Flask, render_template, request, redirect, url_for, session
 from api.api import ActualGeneration
 
 app = Flask(__name__)
+app.config["SECRET_KEY"] = "blabla"
 
-@app.route('/')
+@app.route("/", methods=["POST", "GET"])
+def home():
+    session.clear()
+    if request.method == "POST":
+        start_date = request.form.get("start_date")
+        end_date = request.form.get("end_date")
+
+        session["start_date"] = start_date
+        session["end_date"] = end_date
+        return redirect(url_for("show_prod_per_unit"))
+    else:
+        return render_template("index.html")
+
+@app.route("/graph")
 def show_prod_per_unit():
-    start = datetime.datetime(2022, 12, 1, 0, 0)
-    end = datetime.datetime(2022, 12, 3, 0, 0)
+    start_date = datetime.datetime.strptime(session.get("start_date") + " 00:00:00", "%Y-%m-%d %H:%M:%S")
+    end_date = datetime.datetime.strptime(session.get("end_date") + " 00:00:00", "%Y-%m-%d %H:%M:%S")
 
     api = ActualGeneration()
-    data = pd.DataFrame(api.get_mean_hour_by_hour(start_date=start, end_date=end))
+    data = pd.DataFrame(api.get_mean_hour_by_hour(start_date=start_date, end_date=end_date))
 
     figure = px.bar(data)
 
     graph = json.dumps(figure, cls=plotly.utils.PlotlyJSONEncoder)
 
-    return render_template("index.html", graphJSON=graph)
+    return render_template("graph.html", graph=graph)
 
 
 if __name__ == '__main__':

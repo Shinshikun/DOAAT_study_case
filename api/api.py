@@ -97,7 +97,7 @@ class ActualGeneration():
             access_token = response.json()['access_token']
             token_type = response.json()['token_type']
         else:
-            Warning("Impossible de se connecter")
+            print("Impossible de se connecter")
             access_token = None
             token_type = None
 
