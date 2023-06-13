@@ -5,7 +5,7 @@ import pandas as pd
 import dateutil.parser 
 from typing import Optional
 
-import config
+import api.config as config
 
 
 
@@ -18,7 +18,7 @@ class ActualGeneration():
     def __init__(self):
         self.access_token, self.token_type = self.get_token()
 
-    def get_per_unit(self, start_date: Optional[datetime.datetime] = None, end_date: Optional[datetime.datetime] = None, sandbox=False) -> dict:
+    def get_per_unit(self, start_date: Optional[datetime.datetime] = None, end_date: Optional[datetime.datetime] = None, sandbox=False):
         """
         Récupère les données de productions par unités.
 
@@ -54,7 +54,7 @@ class ActualGeneration():
             return response.status_code
 
     
-    def get_mean_hour_by_hour(self, start_date: Optional[datetime.datetime] = None, end_date: Optional[datetime.datetime] = None, sandbox=False) -> dict:
+    def get_mean_hour_by_hour(self, start_date: Optional[datetime.datetime] = None, end_date: Optional[datetime.datetime] = None, sandbox=False):
         """
         Récupère la moyenne de production de toutes les entités heure par heure
 
@@ -62,9 +62,33 @@ class ActualGeneration():
         :param end_date: Date de fin des datas
         :param sandbox: S'il faut utiliser l'URL sandbox pour les tests
         """
+        if start_date is None or end_date is None or sandbox:
+            data = self.get_per_unit(sandbox=sandbox)
+            value_per_hour = {}
+
+            # Parfois l'appel à l'API peut résulter en erreur
+            if type(data) != dict:
+                print("Erreur lors de l'appel à l'API")
+                return None
+
+            data = data.get("actual_generations_per_unit")
+
+            # On va traiter la donnée afin de récupérer le total de production sur un temps donné
+            for entry in data:
+                for values in entry["values"]:
+                    date = dateutil.parser.parse(values["start_date"])
+                    if date in value_per_hour:
+                        value_per_hour[date] += values["value"]
+                    else:
+                        value_per_hour[date] = values["value"]
+            return pd.Series(value_per_hour).resample("H").mean()
+
 
         delta = end_date - start_date
         data_days = {}
+
+        # On récupère les données de l'API jour par jour car un trop
+        # gros interval générère un plantage
         for i in range(delta.days + 1):
             day_start: datetime.datetime
             day_end: datetime.datetime
@@ -72,7 +96,7 @@ class ActualGeneration():
             day_start = start_date + datetime.timedelta(days=i)
             day_end = day_start + datetime.timedelta(hours=23)
 
-            data = self.get_per_unit(day_start, day_end+datetime.timedelta(days=1), sandbox=sandbox)
+            data = self.get_per_unit(day_start, day_end+datetime.timedelta(days=1))
             value_per_hour = {}
 
             # Parfois l'appel à l'API peut résulter en erreur

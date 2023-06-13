@@ -1,7 +1,6 @@
-import pytest
 import requests
 
-import config
+import api.config as config
 
 def test_auth():
     response = requests.post(config.URL_AUTH, 

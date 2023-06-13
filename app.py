@@ -9,6 +9,7 @@ from api.api import ActualGeneration
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "blabla"
 
+# L'index permet de rentrer les dates à chercher
 @app.route("/", methods=["POST", "GET"])
 def home():
     session.clear()
@@ -23,11 +24,12 @@ def home():
     else:
         return render_template("index.html")
 
+# On affiche le barplot ici
 @app.route("/graph")
 def show_prod_per_unit():
-    if session.get(start_date) is None or session.get(end_date) is None:
+    if session.get("start_date") is None or session.get("end_date") is None:
         return redirect(url_for("home"))
-        
+
     start_date = datetime.datetime.strptime(session.get("start_date") + " 00:00:00", "%Y-%m-%d %H:%M:%S")
     end_date = datetime.datetime.strptime(session.get("end_date") + " 00:00:00", "%Y-%m-%d %H:%M:%S")
 
@@ -43,7 +45,7 @@ def show_prod_per_unit():
     figure.update_layout(
         title="Production",
         xaxis_title="Heures de la journée",
-        yaxis_title="Production par heure",
+        yaxis_title="Production par heure en MW",
         legend_title="Date"
     )
 
