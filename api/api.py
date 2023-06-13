@@ -69,7 +69,8 @@ class ActualGeneration():
         # Parfois l'appel à l'API peut résulter en erreur
         if type(data) != dict:
             print("Erreur lors de l'appel à l'API")
-            return
+            return None
+            
         data = data.get("actual_generations_per_unit")
 
         # On va traiter la donnée afin de récupérer le total de production sur un temps donné
@@ -81,7 +82,7 @@ class ActualGeneration():
                 else:
                     value_per_hour[date] = values["value"]
 
-        return pd.Series(value_per_hour).resample("H").mean()
+        return pd.Series(value_per_hour, name="Production").resample("H").mean()
 
 
     def get_token(self):
