@@ -17,5 +17,10 @@
             <button type="submit" name="create_graph">Afficher la production</button>
         </div>
     </form>
+    {% if error %}
+  <ul>
+    <li>{{error}}</li>
+  </ul>
+  {% endif %}
 	
 </html>

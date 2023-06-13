@@ -19,6 +19,7 @@ def home():
         session["start_date"] = start_date
         session["end_date"] = end_date
         return redirect(url_for("show_prod_per_unit"))
+
     else:
         return render_template("index.html")
 
@@ -28,9 +29,14 @@ def show_prod_per_unit():
     end_date = datetime.datetime.strptime(session.get("end_date") + " 00:00:00", "%Y-%m-%d %H:%M:%S")
 
     api = ActualGeneration()
-    data = pd.DataFrame(api.get_mean_hour_by_hour(start_date=start_date, end_date=end_date))
+    data = api.get_mean_hour_by_hour(start_date=start_date, end_date=end_date)
+    if data is None:
+        return redirect(url_for("home"))
 
-    figure = px.bar(data)
+    data = pd.DataFrame(data, columns=["Production"])
+    print(data.head())
+
+    figure = px.bar(data, y="Production")
 
     graph = json.dumps(figure, cls=plotly.utils.PlotlyJSONEncoder)
 
