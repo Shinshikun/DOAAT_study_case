@@ -28,4 +28,15 @@ def test_get_mean_hour_by_hour():
     assert type(response) ==  dict
 
     # On vérifie qu'on obtient bien 24 entrées correspondant aux 24 heures.
+    assert len(list(response.keys())) == 1
     assert len(response[list(response.keys())[0]]) == 24
+
+    # On test en récupérant deux journées
+    start = datetime.datetime(2023,1,1,0,0)
+    end = datetime.datetime(2023,1,2,0,0)
+    response = test_api.get_mean_hour_by_hour(start, end)
+    assert type(response) ==  dict
+
+    # On vérifie qu'on obtient bien 48 entrées correspondant aux 48 heures.
+    assert len(list(response.keys())) == 2
+    assert len(response[list(response.keys())[0]]) + len(response[list(response.keys())[1]]) == 48
