@@ -1,5 +1,4 @@
 import datetime
-import pandas as pd
 import api.api
 
 test_api = api.api.ActualGeneration()

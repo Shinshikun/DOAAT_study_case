@@ -4,7 +4,6 @@ import urllib
 import pandas as pd
 import dateutil.parser
 from typing import Optional
-
 import api.config as config
 
 
@@ -55,7 +54,8 @@ class ActualGeneration():
                 params=param)
 
         # Si on obtient bien un résultat json
-        if response.status_code == 200 and 'application/json' in response.headers.get(
+        if response.status_code == 200 \
+            and 'application/json' in response.headers.get(
                 'Content-Type', ''):
             return response.json()
         else:
