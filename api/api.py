@@ -16,7 +16,8 @@ class ActualGeneration():
     """
 
     def __init__(self):
-        self.access_token, self.token_type = self.get_token()
+        self.token_type, self.access_token = self.get_token()
+        
 
     def get_per_unit(self, start_date: Optional[datetime.datetime] = None, end_date: Optional[datetime.datetime] = None, sandbox=False):
         """
@@ -37,13 +38,13 @@ class ActualGeneration():
         # Si la date de départ et de fin ne sont pas données, on get l'URL sans paramètre
         if start_date is None or end_date is None:
             response = requests.get(url,
-                                    headers={'Authorization': f'{self.access_token} {self.token_type} '})
+                                    headers={'Authorization': f'{self.token_type} {self.access_token}'})
         else:
             start = start_date.strftime("%Y-%m-%dT%H:%M:%S+02:00")
             end = end_date.strftime("%Y-%m-%dT%H:%M:%S+02:00")
             param = urllib.parse.urlencode({"start_date": start, "end_date": end}).replace("%3A", ":")
             response = requests.get(url,
-                                    headers={'Authorization': f'{self.access_token} {self.token_type} '},
+                                    headers={'Authorization': f'{self.token_type} {self.access_token}'},
                                     params=param
                                 )
 
