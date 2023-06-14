@@ -4,7 +4,6 @@ import json
 import plotly
 import plotly.express as px
 from flask import Flask, render_template, request, redirect, url_for, session
-from flask_socketio import join_room, leave_room, send, SocketIO
 from api.api import ActualGeneration
 
 app = Flask(__name__)
