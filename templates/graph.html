@@ -20,6 +20,24 @@
 				Plotly.plot('chart2',graphs2,{});
 			</script>
 		</div>
+
+		<div>
+			<form method="post" class="buttons">
+				<script type=text/javascript>
+					var socketio = io();
+					const update = () => {
+
+					};
+				</script>
+				<div>
+					<input type="date" id="start" name="start_date"
+						value="{{start_date}}" onchange="">
+		
+					<input type="date" id="end" name="end_date"
+						value="{{end_date}}">
+				</div>
+			</form>
+		</div>
 	</body>
 
 	
