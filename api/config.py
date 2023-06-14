@@ -1,4 +1,4 @@
-""" 
+"""
 Clé afin de s'authentifier sur l'API RTE.
 
 """

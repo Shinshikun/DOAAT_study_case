@@ -2,12 +2,14 @@ import requests
 
 import api.config as config
 
+
 def test_auth():
-    response = requests.post(config.URL_AUTH, 
-                                headers={"content-type": f"application/x-www-form-urlencoded", 
-                                        "Authorization": f"Basic {config.SECRET_KEY}"}
-                            )
-    assert response.ok == True
+    response = requests.post(
+        config.URL_AUTH,
+        headers={
+            "content-type": f"application/x-www-form-urlencoded",
+            "Authorization": f"Basic {config.SECRET_KEY}"})
+    assert response.ok
     assert response.status_code == 200
 
     if response.ok:

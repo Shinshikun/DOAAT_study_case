@@ -2,14 +2,15 @@ import datetime
 import pandas as pd
 import json
 import plotly
-import plotly.express as px 
+import plotly.express as px
 from flask import Flask, render_template, request, redirect, url_for, session
 from api.api import ActualGeneration
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "blabla"
 
-# L'index permet de rentrer les dates à chercher
+
+# La route Index permet de rentrer les dates à chercher
 @app.route("/", methods=["POST", "GET"])
 def home():
     session.clear()
@@ -24,14 +25,19 @@ def home():
     else:
         return render_template("index.html")
 
-# On affiche le barplot ici
+
+# La route graph permet d'afficher les barplots
 @app.route("/graph")
 def show_prod_per_unit():
     if session.get("start_date") is None or session.get("end_date") is None:
         return redirect(url_for("home"))
 
-    start_date = datetime.datetime.strptime(session.get("start_date") + " 00:00:00", "%Y-%m-%d %H:%M:%S")
-    end_date = datetime.datetime.strptime(session.get("end_date") + " 00:00:00", "%Y-%m-%d %H:%M:%S")
+    start_date = datetime.datetime.strptime(
+        session.get("start_date") + " 00:00:00",
+        "%Y-%m-%d %H:%M:%S")
+    end_date = datetime.datetime.strptime(
+        session.get("end_date") + " 00:00:00",
+        "%Y-%m-%d %H:%M:%S")
 
     api = ActualGeneration()
     data = api.get_mean_hour_by_hour(start_date=start_date, end_date=end_date)
@@ -43,8 +49,8 @@ def show_prod_per_unit():
     for key in data:
         idx = key.isoformat()
         if idx not in days:
-            days[idx] = {idx : data[key].sum()}
-    days=pd.DataFrame(days)
+            days[idx] = {idx: data[key].sum()}
+    days = pd.DataFrame(days)
     print(days)
 
     figure = px.bar(data)
