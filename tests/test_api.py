@@ -17,9 +17,9 @@ def test_get_per_unit():
 
 def test_get_mean_hour_by_hour():
     
-    # On test qu'on obtient bien une série pandas en utilisant sandbox
+    # On test que la sandbox fonctionne bien
     response = test_api.get_mean_hour_by_hour(sandbox=True)
-    assert type(response) == pd.Series
+    assert type(response) == dict
 
     # On test en récupérant une journée entière
     start = datetime.datetime(2023,1,1,0,0)

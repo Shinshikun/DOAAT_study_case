@@ -38,20 +38,34 @@ def show_prod_per_unit():
     if data is None:
         return redirect(url_for("home"))
 
-    data = pd.DataFrame(data)
-    print(data.head())
+    days = {}
+    key: datetime.date
+    for key in data:
+        idx = key.isoformat()
+        if idx not in days:
+            days[idx] = {idx : data[key].sum()}
+    days=pd.DataFrame(days)
+    print(days)
 
     figure = px.bar(data)
+    figure2 = px.bar(days)
     figure.update_layout(
-        title="Production",
+        title="Production par heure",
         xaxis_title="Heures de la journée",
         yaxis_title="Production par heure en MW",
         legend_title="Date"
     )
+    figure2.update_layout(
+        title="Production par jour",
+        xaxis_title="Jour",
+        yaxis_title="Production par jour en MW",
+        legend_title="Date"
+    )
 
     graph = json.dumps(figure, cls=plotly.utils.PlotlyJSONEncoder)
+    graph2 = json.dumps(figure2, cls=plotly.utils.PlotlyJSONEncoder)
 
-    return render_template("graph.html", graph=graph)
+    return render_template("graph.html", graph=graph, graph2=graph2)
 
 
 if __name__ == '__main__':

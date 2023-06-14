@@ -81,7 +81,7 @@ class ActualGeneration():
                         value_per_hour[date] += values["value"]
                     else:
                         value_per_hour[date] = values["value"]
-            return pd.Series(value_per_hour).resample("H").mean()
+            return {1: pd.Series(value_per_hour).resample("H").mean()}
 
 
         delta = end_date - start_date
@@ -117,7 +117,6 @@ class ActualGeneration():
             data_days[day_start.date()] = pd.Series(value_per_hour).resample("H").mean()
 
         return data_days
-
 
     def get_token(self):
         """
