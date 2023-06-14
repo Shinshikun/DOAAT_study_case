@@ -4,10 +4,12 @@ import json
 import plotly
 import plotly.express as px
 from flask import Flask, render_template, request, redirect, url_for, session
+from flask_socketio import join_room, leave_room, send, SocketIO
 from api.api import ActualGeneration
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "blabla"
+socketio = SocketIO(app)
 
 
 
@@ -77,9 +79,48 @@ def show_prod_per_unit():
 
     return render_template("graph.html", graph=graph, graph2=graph2, start_date=session.get("start_date"), end_date=session.get("end_date"))
 
+@socketio.on('update_graph')
+def update_graph(data):
+    print(data)
 
+    start_date = datetime.datetime.strptime(
+        data["start_date"] + " 00:00:00",
+        "%Y-%m-%d %H:%M:%S")
+    end_date = datetime.datetime.strptime(
+        data['end_date'] + " 00:00:00",
+        "%Y-%m-%d %H:%M:%S")
+
+    api = ActualGeneration()
+    data = api.get_mean_hour_by_hour(start_date=start_date, end_date=end_date)
+    if data is None:
+        return redirect(url_for("home"))
+
+    # On va faire la somme jour par jour pour un 2nd graphique
+    days = {}
+    key: datetime.date
+    for key in data:
+        idx = key.isoformat()
+        if idx not in days:
+            days[idx] = {idx: data[key].sum()}
+    days = pd.DataFrame(days)
+
+    graph = create_graph(data, title="Production par heure",
+        xaxis_title="Heures de la journée",
+        yaxis_title="Production par heure en MW",
+        legend_title="Date")
+
+    graph2 = create_graph(days, title="Production par jour",
+        xaxis_title="Jour",
+        yaxis_title="Production par jour en MW",
+        legend_title="Date")
+
+    content = {
+        "graph": graph,
+        "graph2": graph2
+    }
+    socketio.emit("update", content)
 
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=3000, host='0.0.0.0')
+    socketio.run(app, debug=True, port=3000, host='0.0.0.0')

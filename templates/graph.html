@@ -22,15 +22,34 @@
 		</div>
 
 		<div>
-			<form method="post" class="buttons">
-				<script type=text/javascript>
-					var socketio = io();
-					const update = () => {
-
-					};
-				</script>
-			</form>
+			<div>
+				<input type="date" id="start" name="start_date"
+					value="{{start_date}}" onchange="update_graph()">
+	
+				<input type="date" id="end" name="end_date"
+					value="{{end_date}}" onchange="update_graph()">
+			</div>
 		</div>
+		<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+		integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
+		crossorigin="anonymous"
+    	></script>
+		<script type=text/javascript>
+			var socketio = io();
+			
+			socketio.on("update", (data) => {
+				Plotly.newPlot('chart',JSON.parse(data.graph),{});
+				Plotly.newPlot('chart2',JSON.parse(data.graph2),{});
+			});
+			
+
+			function update_graph() {
+				let start_date = document.querySelector('#start').value;
+				let end_date = document.querySelector('#end').value;
+				socketio.emit("update_graph", {"start_date": start_date, "end_date": end_date});
+			}
+		</script>
 	</body>
 
 	
