@@ -44,6 +44,7 @@ def show_prod_per_unit():
     if data is None:
         return redirect(url_for("home"))
 
+    # On va faire la somme jour par jour pour un 2nd graphique
     days = {}
     key: datetime.date
     for key in data:
@@ -51,7 +52,6 @@ def show_prod_per_unit():
         if idx not in days:
             days[idx] = {idx: data[key].sum()}
     days = pd.DataFrame(days)
-    print(days)
 
     figure = px.bar(data)
     figure2 = px.bar(days)
