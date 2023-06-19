@@ -2,7 +2,6 @@ import requests
 import datetime
 import urllib
 import pandas as pd
-import dateutil.parser
 from typing import Optional
 import api.config as config
 
@@ -72,9 +71,9 @@ class ActualGeneration():
         :param end_date: Date de fin des datas
         :param sandbox: S'il faut utiliser l'URL sandbox pour les tests
         """
+
         if start_date is None or end_date is None or sandbox:
             data = self.get_per_unit(sandbox=sandbox)
-            value_per_hour = {}
 
             # Parfois l'appel à l'API peut résulter en erreur
             if not isinstance(data, dict):
@@ -82,17 +81,8 @@ class ActualGeneration():
                 return None
 
             data = data.get("actual_generations_per_unit")
-
-            # On va traiter la donnée afin de récupérer le total de production
-            # sur un temps donné
-            for entry in data:
-                for values in entry["values"]:
-                    date = dateutil.parser.parse(values["start_date"])
-                    if date in value_per_hour:
-                        value_per_hour[date] += values["value"]
-                    else:
-                        value_per_hour[date] = values["value"]
-            return {1: pd.Series(value_per_hour).resample("H").mean()}
+            return pd.json_normalize(data, record_path=['values']).groupby(
+                'start_date')["value"].sum()
 
         delta = end_date - start_date
         data_days = {}
@@ -111,7 +101,6 @@ class ActualGeneration():
                 day_end +
                 datetime.timedelta(
                     days=1))
-            value_per_hour = {}
 
             # Parfois l'appel à l'API peut résulter en erreur
             if not isinstance(data, dict):
@@ -122,15 +111,9 @@ class ActualGeneration():
 
             # On va traiter la donnée afin de récupérer le total de production
             # sur un temps donné
-            for entry in data:
-                for values in entry["values"]:
-                    date = dateutil.parser.parse(values["start_date"])
-                    if date in value_per_hour:
-                        value_per_hour[date] += values["value"]
-                    else:
-                        value_per_hour[date] = values["value"]
-            data_days[day_start.date()] = pd.Series(
-                value_per_hour).resample("H").mean()
+            data = pd.json_normalize(data, record_path=['values']).groupby(
+                'start_date')["value"].sum()
+            data_days[day_start.date()] = pd.Series(data)
 
         return data_days
 

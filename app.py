@@ -1,28 +1,14 @@
 import datetime
 import pandas as pd
-import json
-import plotly
-import plotly.express as px
 from flask import Flask, render_template, request, redirect, url_for, session
-from flask_socketio import join_room, leave_room, send, SocketIO
+from flask_socketio import SocketIO
 from api.api import ActualGeneration
+from utils import *
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "blabla"
 socketio = SocketIO(app)
 
-
-
-def create_graph(data, title, xaxis_title, yaxis_title, legend_title):
-    figure = px.bar(data)
-    figure.update_layout(
-        title=title,
-        xaxis_title=xaxis_title,
-        yaxis_title=yaxis_title,
-        legend_title=legend_title
-    )  
-    graph = json.dumps(figure, cls=plotly.utils.PlotlyJSONEncoder)
-    return graph
 
 # La route Index permet de rentrer les dates à chercher
 @app.route("/", methods=["POST", "GET"])
@@ -68,16 +54,22 @@ def show_prod_per_unit():
     days = pd.DataFrame(days)
 
     graph = create_graph(data, title="Production par heure",
-        xaxis_title="Heures de la journée",
-        yaxis_title="Production par heure en MW",
-        legend_title="Date")
+                         xaxis_title="Heures de la journée",
+                         yaxis_title="Production par heure en MW",
+                         legend_title="Date")
 
     graph2 = create_graph(days, title="Production par jour",
-        xaxis_title="Jour",
-        yaxis_title="Production par jour en MW",
-        legend_title="Date")
+                          xaxis_title="Jour",
+                          yaxis_title="Production par jour en MW",
+                          legend_title="Date")
 
-    return render_template("graph.html", graph=graph, graph2=graph2, start_date=session.get("start_date"), end_date=session.get("end_date"))
+    return render_template(
+        "graph.html",
+        graph=graph,
+        graph2=graph2,
+        start_date=session.get("start_date"),
+        end_date=session.get("end_date"))
+
 
 @socketio.on('update_graph')
 def update_graph(data):
@@ -105,21 +97,20 @@ def update_graph(data):
     days = pd.DataFrame(days)
 
     graph = create_graph(data, title="Production par heure",
-        xaxis_title="Heures de la journée",
-        yaxis_title="Production par heure en MW",
-        legend_title="Date")
+                         xaxis_title="Heures de la journée",
+                         yaxis_title="Production par heure en MW",
+                         legend_title="Date")
 
     graph2 = create_graph(days, title="Production par jour",
-        xaxis_title="Jour",
-        yaxis_title="Production par jour en MW",
-        legend_title="Date")
+                          xaxis_title="Jour",
+                          yaxis_title="Production par jour en MW",
+                          legend_title="Date")
 
     content = {
         "graph": graph,
         "graph2": graph2
     }
     socketio.emit("update", content)
-
 
 
 if __name__ == '__main__':
